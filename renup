@@ -1,0 +1,610 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#123d2b">
+<title>RunUp | O teu progresso</title>
+
+<style>
+:root {
+  --green: #23784f;
+  --dark: #123d2b;
+  --light: #eaf6ed;
+  --bg: #f4f8f4;
+  --white: #ffffff;
+  --text: #20372a;
+  --muted: #68796e;
+}
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  background: linear-gradient(135deg, #123d2b, #298452);
+  color: white;
+  padding: 28px 20px 40px;
+  border-radius: 0 0 28px 28px;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: 900;
+}
+
+header h1 {
+  font-size: 36px;
+  line-height: 1.1;
+  margin: 25px 0 10px;
+}
+
+header p { color: #e0f3e5; }
+
+main { padding: 16px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: -5px;
+}
+
+.stat, .card {
+  background: var(--white);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 5px 20px #123d2b0c;
+}
+
+.stat strong {
+  display: block;
+  font-size: 25px;
+  color: var(--green);
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+section { margin-top: 24px; }
+
+h2 { font-size: 19px; margin: 0 0 12px; }
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: -6px;
+}
+
+.achievements {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: white;
+  border: 1px solid #e1eae2;
+  border-radius: 15px;
+  padding: 12px 9px;
+}
+
+.achievement.locked { opacity: .55; }
+
+.achievement.unlocked {
+  background: #e7f7e9;
+  border-color: #9ed7ac;
+}
+
+.emoji { font-size: 25px; }
+
+.achievement strong {
+  display: block;
+  font-size: 13px;
+}
+
+.achievement small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 12px 0 6px;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ceddce;
+  border-radius: 11px;
+  font: inherit;
+  background: white;
+  color: var(--text);
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: var(--green);
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  margin-top: 14px;
+  cursor: pointer;
+}
+
+button:active { transform: scale(.99); }
+
+.secondary {
+  background: var(--light);
+  color: var(--green);
+}
+
+.progress {
+  height: 9px;
+  background: #e2ebe3;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 12px 0 7px;
+}
+
+.bar {
+  width: 0%;
+  height: 100%;
+  background: #48a66a;
+  transition: width .3s;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.muted { color: var(--muted); }
+
+.session {
+  padding: 12px 0;
+  border-bottom: 1px solid #e7eee7;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.session:last-child { border-bottom: none; }
+
+.session small {
+  display: block;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.minutes {
+  color: var(--green);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.notice {
+  background: #eaf6ed;
+  padding: 13px;
+  border-radius: 13px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 28px 12px;
+  font-size: 13px;
+}
+
+@media(max-width: 400px) {
+  header h1 { font-size: 31px; }
+  .stat { padding: 12px 8px; }
+  .stat strong { font-size: 21px; }
+  .achievements { gap: 7px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo">🌱 RunUp</div>
+    <h1>Pequenos passos.<br>Grandes conquistas.</h1>
+    <p>O teu progresso, ao teu ritmo. Sem pressão.</p>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="stats">
+    <div class="stat">
+      <strong id="totalSessions">0</strong>
+      <span>Sessões</span>
+    </div>
+    <div class="stat">
+      <strong id="totalMinutes">0</strong>
+      <span>Minutos</span>
+    </div>
+    <div class="stat">
+      <strong id="weekSessions">0/3</strong>
+      <span>Esta semana</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>🏅 As tuas conquistas</h2>
+    <p class="subtitle">Desbloqueia conquistas ao longo do caminho.</p>
+    <div class="achievements" id="achievements"></div>
+  </section>
+
+  <section class="card">
+    <h2>🎯 Objetivos pessoais</h2>
+    <p class="subtitle">Cria consistência, sem treinar todos os dias.</p>
+
+    <form id="goalForm">
+      <label for="goalMinutes">Minutos por sessão</label>
+      <input id="goalMinutes" type="number"
+             min="1" max="180" value="15" required>
+
+      <label for="goalSessions">Sessões por semana</label>
+      <input id="goalSessions" type="number"
+             min="1" max="7" value="3" required>
+
+      <button type="submit">Guardar objetivos</button>
+    </form>
+
+    <div class="progress">
+      <div class="bar" id="progressBar"></div>
+    </div>
+
+    <div class="row">
+      <span class="muted" id="progressText">0 de 3 sessões</span>
+      <strong id="progressPercent">0%</strong>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>➕ Registar uma sessão</h2>
+
+    <form id="sessionForm">
+      <label for="minutes">Duração (minutos)</label>
+      <input id="minutes" type="number"
+             min="1" max="300" value="15" required>
+
+      <label for="activity">Atividade</label>
+      <select id="activity">
+        <option>Caminhada</option>
+        <option>Corrida leve</option>
+        <option>Corrida e caminhada</option>
+        <option>Outra atividade</option>
+      </select>
+
+      <label for="note">Nota opcional</label>
+      <input id="note" maxlength="90"
+             placeholder="Ex.: Treinei no parque">
+
+      <button type="submit">Guardar sessão</button>
+    </form>
+    <p class="subtitle">Os registos ficam guardados neste navegador.</p>
+  </section>
+
+  <section class="card">
+    <h2>🧪 Teste de 6 minutos</h2>
+    <p>Quando te sentires preparado, faz um teste a um ritmo confortável. Podes caminhar ou alternar entre caminhar e correr.</p>
+    <button class="secondary" id="testButton" type="button">
+      Registar teste concluído
+    </button>
+    <p class="subtitle" id="testStatus">Teste ainda não registado.</p>
+  </section>
+
+  <section class="card">
+    <h2>📚 Mini-teste</h2>
+    <p class="subtitle">Responde às três perguntas.</p>
+
+    <form id="quizForm">
+      <label for="q1">1. Antes de treinar, deves…</label>
+      <select id="q1" required>
+        <option value="">Escolhe uma resposta</option>
+        <option value="yes">Aquecer suavemente</option>
+        <option value="no">Começar à máxima velocidade</option>
+      </select>
+
+      <label for="q2">2. Se sentires tonturas, deves…</label>
+      <select id="q2" required>
+        <option value="">Escolhe uma resposta</option>
+        <option value="no">Continuar a qualquer custo</option>
+        <option value="yes">Parar e avisar um adulto de confiança</option>
+      </select>
+
+      <label for="q3">3. O descanso é importante?</label>
+      <select id="q3" required>
+        <option value="">Escolhe uma resposta</option>
+        <option value="yes">Sim, ajuda o corpo a recuperar</option>
+        <option value="no">Não, nunca é necessário</option>
+      </select>
+
+      <button type="submit">Ver respostas</button>
+    </form>
+    <p id="quizResult" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <h2>🗓️ Histórico</h2>
+      <button class="secondary" id="clearButton"
+              type="button" style="width:auto;margin:0;padding:8px">
+        Apagar
+      </button>
+    </div>
+    <div id="history">
+      <p class="muted">Ainda não tens sessões registadas.</p>
+    </div>
+  </section>
+
+  <section class="notice">
+    💚 <strong>Treina com segurança:</strong>
+    aquece antes, abranda no final, bebe água e descansa.
+    Não precisas de correr à máxima velocidade.
+    Se sentires dor, tonturas ou falta de ar fora do normal,
+    para e avisa um adulto de confiança.
+  </section>
+
+</main>
+
+<footer>RunUp • O teu progresso, ao teu ritmo. 🌱</footer>
+
+<script>
+const KEY = "runup-progress-v1";
+
+const initialData = {
+  sessions: [],
+  goalMinutes: 15,
+  goalSessions: 3,
+  testDone: false,
+  quizDone: false
+};
+
+let data = initialData;
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+  if (saved && typeof saved === "object") {
+    data = {
+      ...initialData,
+      ...saved,
+      sessions: Array.isArray(saved.sessions) ? saved.sessions : []
+    };
+  }
+} catch (error) {
+  data = {...initialData};
+}
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  } catch (error) {
+    alert("Não foi possível guardar os dados neste navegador.");
+  }
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function weekStart() {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+  return date;
+}
+
+function weeklySessions() {
+  const start = weekStart().getTime();
+  return data.sessions.filter(session =>
+    new Date(session.date).getTime() >= start
+  ).length;
+}
+
+function render() {
+  const totalMinutes = data.sessions.reduce(
+    (sum, session) => sum + session.minutes, 0
+  );
+
+  const weekly = weeklySessions();
+  const percent = Math.min(
+    100, Math.round(weekly / data.goalSessions * 100)
+  );
+
+  document.getElementById("totalSessions").textContent =
+    data.sessions.length;
+  document.getElementById("totalMinutes").textContent = totalMinutes;
+  document.getElementById("weekSessions").textContent =
+    weekly + "/" + data.goalSessions;
+
+  document.getElementById("goalMinutes").value = data.goalMinutes;
+  document.getElementById("goalSessions").value = data.goalSessions;
+
+  document.getElementById("progressBar").style.width = percent + "%";
+  document.getElementById("progressText").textContent =
+    weekly + " de " + data.goalSessions + " sessões";
+  document.getElementById("progressPercent").textContent = percent + "%";
+
+  const badges = [
+    ["🌱", "Primeiro passo", "Regista 1 sessão",
+      data.sessions.length >= 1],
+    ["🔥", "3 sessões", "Regista 3 sessões",
+      data.sessions.length >= 3],
+    ["🏅", "5 sessões", "Regista 5 sessões",
+      data.sessions.length >= 5],
+    ["⏱️", "30 minutos", "Acumula 30 minutos",
+      totalMinutes >= 30],
+    ["🧪", "Testador", "Guarda um teste de 6 min",
+      data.testDone],
+    ["📚", "Aprendiz", "Termina o mini-teste",
+      data.quizDone],
+    ["🎯", "Objetivo semanal", "Cumpre a meta semanal",
+      weekly >= data.goalSessions]
+  ];
+
+  document.getElementById("achievements").innerHTML =
+    badges.map(badge => `
+      <div class="achievement ${badge[3] ? "unlocked" : "locked"}">
+        <span class="emoji">${badge[0]}</span>
+        <div>
+          <strong>${badge[1]}</strong>
+          <small>${badge[2]}</small>
+        </div>
+      </div>
+    `).join("");
+
+  document.getElementById("testStatus").textContent =
+    data.testDone
+      ? "✓ Teste registado. Conquista desbloqueada!"
+      : "Teste ainda não registado.";
+
+  const history = document.getElementById("history");
+
+  if (data.sessions.length === 0) {
+    history.innerHTML =
+      '<p class="muted">Ainda não tens sessões registadas.</p>';
+  } else {
+    history.innerHTML = [...data.sessions].reverse().map(session => `
+      <div class="session">
+        <div>
+          <strong>${escapeHTML(session.activity)}</strong>
+          <small>${new Date(session.date).toLocaleDateString("pt-PT")}${session.note ? " · " + escapeHTML(session.note) : ""}</small>
+        </div>
+        <span class="minutes">${session.minutes} min</span>
+      </div>
+    `).join("");
+  }
+}
+
+document.getElementById("goalForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const minutes = Number(document.getElementById("goalMinutes").value);
+  const sessions = Number(document.getElementById("goalSessions").value);
+
+  if (minutes < 1 || minutes > 180 ||
+      sessions < 1 || sessions > 7) {
+    alert("Verifica os valores dos teus objetivos.");
+    return;
+  }
+
+  data.goalMinutes = minutes;
+  data.goalSessions = sessions;
+  save();
+  render();
+  alert("Objetivos guardados! 🌱");
+});
+
+document.getElementById("sessionForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const minutes = Number(document.getElementById("minutes").value);
+
+  if (minutes < 1 || minutes > 300) {
+    alert("Indica entre 1 e 300 minutos.");
+    return;
+  }
+
+  data.sessions.push({
+    minutes,
+    activity: document.getElementById("activity").value,
+    note: document.getElementById("note").value.trim(),
+    date: new Date().toISOString()
+  });
+
+  save();
+  event.target.reset();
+  document.getElementById("minutes").value = data.goalMinutes;
+  render();
+  alert("Sessão guardada! Bom trabalho! 💚");
+});
+
+document.getElementById("testButton").addEventListener("click", () => {
+  if (data.testDone) {
+    alert("Já registaste esta conquista.");
+    return;
+  }
+
+  data.testDone = true;
+  save();
+  render();
+  alert("Conquista Testador desbloqueada! 🧪");
+});
+
+document.getElementById("quizForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const correct =
+    document.getElementById("q1").value === "yes" &&
+    document.getElementById("q2").value === "yes" &&
+    document.getElementById("q3").value === "yes";
+
+  const result = document.getElementById("quizResult");
+
+  if (correct) {
+    data.quizDone = true;
+    save();
+    render();
+    result.textContent =
+      "Excelente! Acertaste nas 3 respostas. 📚";
+  } else {
+    result.textContent =
+      "Tenta novamente! Revê as respostas sobre segurança.";
+  }
+});
+
+document.getElementById("clearButton").addEventListener("click", () => {
+  if (!data.sessions.length) {
+    alert("O histórico já está vazio.");
+    return;
+  }
+
+  if (confirm("Queres apagar todas as sessões do histórico?")) {
+    data.sessions = [];
+    save();
+    render();
+  }
+});
+
+render();
+</script>
+
+</body>
+</html>
